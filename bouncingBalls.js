@@ -9,6 +9,8 @@ const MAX_SPEED = 100;	// max speed in pixels per second
 const FRAME_RATE = 25;	// render executions per second
 const BALL_RADIUS = 5; 	// ball radius in pixels
 
+const FRAME_DURATION = 1000 / FRAME_RATE; 
+
 function throwBall(x, y) {
 	ballState.x = x;
 	ballState.y = y;
@@ -24,6 +26,8 @@ function render() {
 		context.clearRect(0, 0, canvas.width, canvas.height);	// clear canvas from previous state
 
 		drawBall(context, ballState.x, ballState.y, BALL_RADIUS);
+
+		moveBall(ballState);
 	}
 }
 
@@ -31,6 +35,27 @@ function drawBall(context, x, y, r) {
 	context.beginPath();
 	context.arc(x, y, r, 0, 2 * Math.PI);
 	context.fill();
+}
+
+function ballNextX(ball) {
+	// deltaS = V * deltaT;
+	// Vx = V * Math.cos(angle)
+	var speedX = ball.speed * parseFloat(Math.cos(ball.direction).toFixed(2));
+	var nextX = ball.x + (speedX * FRAME_DURATION / 1000);
+	return nextX;
+}
+
+function ballNextY(ball) {
+	// deltaS = V * deltaT;
+	// Vy = V * Math.sin(angle)
+	var speedY = ball.speed * parseFloat(Math.sin(ball.direction).toFixed(2));
+	var nextY = ball.y + (speedY * FRAME_DURATION / 1000);
+	return nextY;
+}
+
+function moveBall(ball) {
+	ball.x = ballNextX(ball);
+	ball.y = ballNextY(ball);
 }
 
 window.addEventListener('load', function(oEvent) {
@@ -45,7 +70,7 @@ window.addEventListener('load', function(oEvent) {
 	}
 	resizeCanvas();
 
-	setInterval(render, 1000 / FRAME_RATE);
+	setInterval(render, FRAME_DURATION);
 });
 
 window.addEventListener('click', function(oEvent) {
