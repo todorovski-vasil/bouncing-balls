@@ -89,6 +89,10 @@
 		return Math.abs(ball.speed * parseFloat(Math.sin(ball.direction).toFixed(5)));
 	}
 
+	function getVectorSpeed(speedX, speedY) {
+		return Math.sqrt(Math.pow(speedX, 2) + Math.pow(speedY, 2));
+	}
+
 	function nextState(ball) {
 		// aY = F / m
 		// F = m * g - dragCoef * 0.5 * r * speedY^2 * A
@@ -109,7 +113,7 @@
 		var nextSpeedX = speedX + aX * FRAME_DURATION;
 		var nextSpeedY = speedY + aY * FRAME_DURATION;
 
-		var nextSpeed = Math.sqrt(Math.pow(nextSpeedX, 2) + Math.pow(nextSpeedY, 2));
+		var nextSpeed = getVectorSpeed(nextSpeedX, nextSpeedY);
 
 		var nextX = ball.x + (rightSign * nextSpeedX * FRAME_DURATION);
 		var nextY = ball.y + (fallSign * nextSpeedY * FRAME_DURATION);
@@ -171,8 +175,25 @@
 		}
 	}
 
+	/**********/
+	/* Export */
+	/**********/
 	global["bouncingBallsV"] = {
 		initCanvas: initCanvas
 	}
+
+	/**********************************************************/
+	/* Tests
+	/**********************************************************/
+
+	var testBall = {
+		x: 100,
+		y: 100,
+		speed: Math.random() * MAX_SPEED,
+		direction: Math.random() * Math.PI * 2,
+		color: "#ffffff"
+	};
+
+	unitjs.number(testBall.speed).isApprox(getVectorSpeed(getSpeedX(testBall), getSpeedY(testBall)), 0.00001);
 
 })(window);
