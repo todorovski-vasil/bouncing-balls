@@ -8,5 +8,19 @@
   </head>
   <body>
     <canvas id="playground" style="border:1px solid #000000;"/>
+    <script>
+    	bouncingBallsV.initCanvas("playground", window.innerWidth, window.innerHeight);
+
+		// resize the canvas to fill browser window dynamically
+		function resizeCanvas() {
+			const canvas = document.getElementById("playground");
+
+			canvas.width = window.innerWidth - 2;
+			canvas.height = window.innerHeight - 2;
+		}
+		resizeCanvas();
+
+		window.addEventListener("resize", resizeCanvas, false);
+    </script>
   </body>
 </html>
