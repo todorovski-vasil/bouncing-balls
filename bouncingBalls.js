@@ -1,9 +1,4 @@
-var ballsState = [{
-	x: -1,
-	y: -1,
-	speed: 0,	// pixels per second
-	direction: 0	// radians
-}]
+var ballsState = [];
 
 const CANVAS_ID = "playground";
 
@@ -13,40 +8,39 @@ const BALL_RADIUS = 5; 	// ball radius in pixels
 const GRAVITY = 9.8;	// pixels per second^2
 const BALL_MASS = 0.5; 	// kg
 const DRAG_COEF = 0.01;
-const ELASTIC_COEF = 0.9;
+const ELASTIC_COEF = 0.9;	// must be between 0 and 1
 
 const BALL_AREA = Math.sqrt(BALL_RADIUS) * Math.PI;
 const FRAME_DURATION = 1000 / FRAME_RATE / 1000;
 
 function throwBall(x, y) {
-	const k = ballsState.length - 1;
-
-	ballsState[k].x = x;
-	ballsState[k].y = y;
-	// ballsState[k].x = 100;
-	// ballsState[k].y = 100;
-	ballsState[k].speed = Math.random() * MAX_SPEED;
-	ballsState[k].direction = Math.random() * Math.PI * 2;
-	// ballsState[k].speed = 1 * MAX_SPEED;
-	// ballsState[k].direction = 1.75 * Math.PI;
+	ballsState.push({
+		x: x,
+		y: y,
+		speed: Math.random() * MAX_SPEED,
+		direction: Math.random() * Math.PI * 2
+		// speed: 1 * MAX_SPEED,
+		// direction: 1.75 * Math.PI
+	});
 }
 
 function render() {
 	var canvas = document.getElementById(CANVAS_ID);
 	var context = canvas.getContext("2d");
 
-	ballsState = ballsState.map(function(ball) {
-		if(ball.x >= 0 && ball.y >= 0) {
-			context.clearRect(0, 0, canvas.width, canvas.height);	// clear canvas from previous state
+	context.clearRect(0, 0, canvas.width, canvas.height);	// clear canvas from previous state
 
-			drawBall(context, ball.x, ball.y, BALL_RADIUS);
+	ballsState = ballsState.reduce(function(activeBalls, ball) {
+		drawBall(context, ball.x, ball.y, BALL_RADIUS);
 
-			// moveBall(ball);
+		const nextBallState = nextState(ball);
+
+		if (nextBallState.speed > 0.2) {
+			activeBalls.push(nextBallState);
 		}
 
-		// return ball;
-		return nextState(ball);
-	});
+		return activeBalls;
+	}, []);
 }
 
 function drawBall(context, x, y, r) {
@@ -65,28 +59,6 @@ function ballNextY(ball) {
 	// deltaS = V * deltaT;
 	var nextY = ball.y + (getSpeedY(ball) * FRAME_DURATION);
 	return nextY;
-}
-
-function moveBall(ball) {
-	var nextX = ballNextX(ball);
-	var nextY = ballNextY(ball);
-
-	var newDirection = Math.atan2(
-		ball.y - nextY,
-		ball.x - nextX
-	) + Math.PI;
-
-	var newSpeed = Math.round(
-		Math.sqrt(
-			Math.pow(Math.abs(ball.x - nextX), 2) +
-			Math.pow(Math.abs(ball.y - nextY), 2)
-		) / FRAME_DURATION
-	, 3);
-
-	ball.x = nextX;
-	ball.y = nextY;
-	ball.direction = newDirection;
-	ball.speed = newSpeed;
 }
 
 window.addEventListener('load', function(oEvent) {
@@ -119,9 +91,6 @@ function getSpeedY(ball) {
 }
 
 function nextState(ball) {
-	if (ball.x < 0 || ball.y < 0) {
-		return ball;
-	}
 	// aY = F / m
 	// F = m * g - dragCoef * 0.5 * r * speedY^2 * A
 	var speedX = getSpeedX(ball);
@@ -141,17 +110,23 @@ function nextState(ball) {
 	var nextSpeedX = speedX + aX * FRAME_DURATION;
 	var nextSpeedY = speedY + aY * FRAME_DURATION;
 
+	var nextSpeed = Math.sqrt(Math.pow(nextSpeedX, 2) + Math.pow(nextSpeedY, 2));
+
 	var nextX = ball.x + (rightSign * nextSpeedX * FRAME_DURATION);
 	var nextY = ball.y + (fallSign * nextSpeedY * FRAME_DURATION);
 
 	const canvas = document.getElementById(CANVAS_ID);
 
-	var nextDirection, nextSpeed;
+	var nextDirection;
 
 	var alpha = Math.atan2(ball.y - nextY, ball.x - nextX);
 
-	if (nextY >= canvas.height || nextX <= 0 || nextX >= canvas.width) {
+	if (nextY >= canvas.height || nextY <= 0 || nextX <= 0 || nextX >= canvas.width) {
+		// bounce
+
 		if (nextX <= 0 || nextX >= canvas.width) {
+			// bounce of the side
+
 			nextDirection = - alpha;
 
 			if (nextX < 0) {
@@ -160,21 +135,25 @@ function nextState(ball) {
 				nextX = 2 * canvas.width - nextX;
 			}
 		} else {
+			// bounce of the top or bottom
+
 			nextDirection = Math.PI - alpha;
 
-			nextY = 2 * canvas.height - nextY;
+			if (nextY < 0) {
+				nextY = - nextY;
+			} else {
+				nextY = 2 * canvas.height - nextY;
+			}
 		}
 
-		nextSpeed = Math.sqrt(Math.pow(nextSpeedX, 2) + Math.pow(nextSpeedY, 2)) * ELASTIC_COEF;
+		nextSpeed *= ELASTIC_COEF;	// make the ball lose some energy while bouncing
 	} else {
-		nextDirection = Math.PI + Math.atan2(
-			ball.y - nextY,
-			ball.x - nextX
-		);
+		// movement in empty space
 
-		nextSpeed = Math.sqrt(Math.pow(nextSpeedX, 2) + Math.pow(nextSpeedY, 2));
+		nextDirection = Math.PI + alpha;
 	}
 
+	// set next direction between 0 and 2PI
 	if (nextDirection < 0) {
 		nextDirection += 2 * Math.PI;
 	} else if (nextDirection > 2 * Math.PI) {
