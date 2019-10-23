@@ -36,7 +36,7 @@ function render() {
 
 		const nextBallState = nextState(ball);
 
-		if (canvas.height - nextBallState.y > BALL_RADIUS || nextBallState.speed > 0.2) {
+		if (canvas.height - BALL_RADIUS - 1 > nextBallState.y || nextBallState.speed > 0.2) {
 			activeBalls.push(nextBallState);
 		}
 
@@ -124,28 +124,31 @@ function nextState(ball) {
 
 	var alpha = Math.atan2(ball.y - nextY, ball.x - nextX);
 
-	if (nextY >= canvas.height || nextY <= 0 || nextX <= 0 || nextX >= canvas.width) {
+	if (nextY >= canvas.height - BALL_RADIUS ||
+		nextY <= 0 + BALL_RADIUS ||
+		nextX <= 0 + BALL_RADIUS||
+		nextX >= canvas.width - BALL_RADIUS) {
 		// bounce
 
-		if (nextX <= 0 || nextX >= canvas.width) {
+		if (nextX <= 0 + BALL_RADIUS || nextX >= canvas.width - BALL_RADIUS) {
 			// bounce of the side
 
 			nextDirection = - alpha;
 
-			if (nextX < 0) {
-				nextX = - nextX;
-			} else if (nextX > canvas.width) {
-				nextX = 2 * canvas.width - nextX;
+			if (nextX < 0 + BALL_RADIUS) {
+				nextX = 2 * BALL_RADIUS - nextX;
+			} else {
+				nextX = 2 * (canvas.width - BALL_RADIUS) - nextX;
 			}
 		} else {
 			// bounce of the top or bottom
 
 			nextDirection = Math.PI - alpha;
 
-			if (nextY < 0) {
-				nextY = - nextY;
+			if (nextY < 0 + BALL_RADIUS) {
+				nextY = 2 * BALL_RADIUS - nextY;
 			} else {
-				nextY = 2 * canvas.height - nextY;
+				nextY = 2 * (canvas.height - BALL_RADIUS) - nextY;
 			}
 		}
 
