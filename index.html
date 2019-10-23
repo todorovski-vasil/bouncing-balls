@@ -8,20 +8,58 @@
     <title>Bouncing balls</title>
   </head>
   <body>
+  	<label>Gravity
+  		<input id="gravity" type="number" />
+	</label>
+	<label>Drag
+  		<input id="drag" type="number" />
+	</label>
+	<label>Elasticity
+  		<input id="elasticity" type="number" />
+	</label>
     <canvas id="playground" style="border:1px solid #000000;"/>
     <script>
-    	bouncingBallsV.initCanvas("playground", window.innerWidth, window.innerHeight);
+    	window.addEventListener('load', function(oEvent) {
+	    	bouncingBallsV.initCanvas("playground", window.innerWidth - 2, window.innerHeight - 21);
 
-		// resize the canvas to fill browser window dynamically
-		function resizeCanvas() {
-			const canvas = document.getElementById("playground");
+			// resize the canvas to fill browser window dynamically
+			function resizeCanvas() {
+				const canvas = document.getElementById("playground");
 
-			canvas.width = window.innerWidth - 2;
-			canvas.height = window.innerHeight - 2;
-		}
-		resizeCanvas();
+				canvas.width = window.innerWidth - 2;
+				canvas.height = window.innerHeight - 21;
+			}
+			resizeCanvas();
 
-		window.addEventListener("resize", resizeCanvas, false);
+			window.addEventListener("resize", resizeCanvas, false);
+
+			var gravityInput = document.getElementById("gravity");
+
+			gravityInput.addEventListener("change", onGravityChange);
+			gravityInput.value = bouncingBallsV.getGravity();
+
+			function onGravityChange(oEvent) {
+				bouncingBallsV.setGravity(parseFloat(oEvent.target.value, 10));
+			}
+
+			var dragInput = document.getElementById("drag");
+
+			dragInput.addEventListener("change", onDragCoefChange);
+			dragInput.value = bouncingBallsV.getDragCoef();
+
+			function onDragCoefChange(oEvent) {
+				bouncingBallsV.setDragCoef(parseFloat(oEvent.target.value, 10));
+			}
+
+			var elasticityInput = document.getElementById("elasticity");
+
+			elasticityInput.addEventListener("change", onElasticityCoefChange);
+			elasticityInput.value = bouncingBallsV.getElasticityCoef();
+
+			function onElasticityCoefChange(oEvent) {
+				bouncingBallsV.setElasticityCoef(parseFloat(oEvent.target.value, 10));
+			}
+		});
     </script>
   </body>
 </html>
