@@ -7,7 +7,7 @@ var ballsState = [{
 
 const CANVAS_ID = "playground";
 
-const MAX_SPEED = 50;	// max speed in pixels per second
+const MAX_SPEED = 100;	// max speed in pixels per second
 const FRAME_RATE = 25;	// render executions per second
 const BALL_RADIUS = 5; 	// ball radius in pixels
 const GRAVITY = 9.8;	// pixels per second^2
@@ -28,7 +28,7 @@ function throwBall(x, y) {
 	ballsState[k].speed = Math.random() * MAX_SPEED;
 	ballsState[k].direction = Math.random() * Math.PI * 2;
 	// ballsState[k].speed = 1 * MAX_SPEED;
-	// ballsState[k].direction = 0.75 * Math.PI;
+	// ballsState[k].direction = 1.75 * Math.PI;
 }
 
 function render() {
@@ -148,13 +148,22 @@ function nextState(ball) {
 
 	var nextDirection, nextSpeed;
 
-	if (nextY >= canvas.height) {
-		nextDirection = Math.PI - Math.atan2(
-			ball.y - nextY,
-			ball.x - nextX
-		);
+	var alpha = Math.atan2(ball.y - nextY, ball.x - nextX);
 
-		nextY = 2 * canvas.height - nextY;
+	if (nextY >= canvas.height || nextX <= 0 || nextX >= canvas.width) {
+		if (nextX <= 0 || nextX >= canvas.width) {
+			nextDirection = - alpha;
+
+			if (nextX < 0) {
+				nextX = - nextX;
+			} else if (nextX > canvas.width) {
+				nextX = 2 * canvas.width - nextX;
+			}
+		} else {
+			nextDirection = Math.PI - alpha;
+
+			nextY = 2 * canvas.height - nextY;
+		}
 
 		nextSpeed = Math.sqrt(Math.pow(nextSpeedX, 2) + Math.pow(nextSpeedY, 2)) * ELASTIC_COEF;
 	} else {
@@ -164,6 +173,12 @@ function nextState(ball) {
 		);
 
 		nextSpeed = Math.sqrt(Math.pow(nextSpeedX, 2) + Math.pow(nextSpeedY, 2));
+	}
+
+	if (nextDirection < 0) {
+		nextDirection += 2 * Math.PI;
+	} else if (nextDirection > 2 * Math.PI) {
+		nextDirection -= 2 * Math.PI;
 	}
 
 	return {
