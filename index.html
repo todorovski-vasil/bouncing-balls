@@ -9,15 +9,15 @@
   </head>
   <body>
   	<label>Gravity
-  		<input id="gravity" type="number" />
+		<input id="gravity" type="number" step="1" />
 	</label>
 	<label>Drag
-  		<input id="drag" type="number" />
+		<input id="drag" type="number" step="0.01" />
 	</label>
 	<label>Elasticity
-  		<input id="elasticity" type="number" />
+		<input id="elasticity" type="number" step="0.1" />
 	</label>
-    <canvas id="playground" style="border:1px solid #000000;"/>
+    <canvas id="playground" style="border:1px solid #000000;" />
     <script>
     	window.addEventListener('load', function(oEvent) {
 	    	bouncingBallsV.initCanvas("playground", window.innerWidth - 2, window.innerHeight - 21);
@@ -33,32 +33,36 @@
 
 			window.addEventListener("resize", resizeCanvas, false);
 
+			// handle environment input changes
 			var gravityInput = document.getElementById("gravity");
-
-			gravityInput.addEventListener("change", onGravityChange);
 			gravityInput.value = bouncingBallsV.getGravity();
-
-			function onGravityChange(oEvent) {
-				bouncingBallsV.setGravity(parseFloat(oEvent.target.value, 10));
-			}
+			gravityInput.addEventListener("change", function (oEvent) {
+				try {
+					bouncingBallsV.setGravity(parseFloat(oEvent.target.value, 10));
+				} catch(e) {
+					alert(e);
+				}
+			});
 
 			var dragInput = document.getElementById("drag");
-
-			dragInput.addEventListener("change", onDragCoefChange);
 			dragInput.value = bouncingBallsV.getDragCoef();
-
-			function onDragCoefChange(oEvent) {
-				bouncingBallsV.setDragCoef(parseFloat(oEvent.target.value, 10));
-			}
+			dragInput.addEventListener("change", function (oEvent) {
+				try {
+					bouncingBallsV.setDragCoef(parseFloat(oEvent.target.value, 10));
+				} catch(e) {
+					alert(e);
+				}
+			});
 
 			var elasticityInput = document.getElementById("elasticity");
-
-			elasticityInput.addEventListener("change", onElasticityCoefChange);
 			elasticityInput.value = bouncingBallsV.getElasticityCoef();
-
-			function onElasticityCoefChange(oEvent) {
-				bouncingBallsV.setElasticityCoef(parseFloat(oEvent.target.value, 10));
-			}
+			elasticityInput.addEventListener("change", function (oEvent) {
+				try {
+					bouncingBallsV.setElasticityCoef(parseFloat(oEvent.target.value, 10));
+				} catch(e) {
+					alert(e);
+				}
+			});
 		});
     </script>
   </body>

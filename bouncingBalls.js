@@ -200,7 +200,7 @@
 		if(typeof value === "number" && value >= 0) {
 			env.gravity = value; 
 		} else {
-			alert("The gravity has to be larger than 0");
+			throw "The gravity can't be smaller than 0";
 		}
 	}
 
@@ -212,7 +212,7 @@
 		if(typeof value === "number" && value >= 0) {
 			env.drag_coef = value; 
 		} else {
-			alert("The drag coefficient has to be larger than 0");
+			throw "The drag coefficient can't be smaller than 0";
 		}
 	}
 
@@ -224,7 +224,7 @@
 		if(typeof value === "number" && value >= 0 && value <= 1) {
 			env.elastic_coef = value; 
 		} else {
-			alert("The elastic coefficient has to be between 0 and 1");
+			throw "The elastic coefficient has to be between 0 and 1";
 		}
 	}
 
